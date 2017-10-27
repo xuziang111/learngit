@@ -24,7 +24,7 @@ var server = http.createServer(function(request, response){
     response.setHeader('Content-Type', 'text/css; charset=utf-8')
     response.write('body{background-color: #ddd;}h1{color: red;}')
     response.end()
-  }else if(path == '/script.js'){
+  }else if(path == '/main.js'){
     response.setHeader('Content-Type', 'text/javascript; charset=utf-8')
     response.write('alert("这是JS执行的")')
     response.end()
@@ -34,7 +34,7 @@ var server = http.createServer(function(request, response){
       '<head><link rel="stylesheet" href="/style.css">' +
       '</head><body>'  +
       '<h1>你好</h1>' +
-      '<script src="/script.js"></script>' +
+      '<script src="/main.js"></script>' +
       '</body></html>')
     response.end()
   }else{
