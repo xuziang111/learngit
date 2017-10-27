@@ -1,0 +1,10 @@
+img {
+    filter:brightness(.5);
+    width:100%;
+			
+    }
+.hd {
+	height:500px;
+	overflow:hidden;
+    }		
+	
