@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+    *{
+        margin:0;padding:0;box-sizing: border-box;
+    }
+    html{
+        height:100%;
+    }
+    body{
+        border:1px solid red;
+        height:100%;
+        display:flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+    .form-wrapper{
+        border:1px solid grey
+    }
+    .form-wrapper .row>label{
+        width:5em;
+        display:inline-block;
+    }
+    </style>
+</head>
+<body>
+    <div class="form-wrapper">
+    <h1>登录</h1>
+    <form id="signIn" method = "GET">
+        <div class="row"><label>邮箱:</label><input type="text" name="email"><span class="error"></span></div>
+        <div class="row"><label>密码:</label><input type="password" name="password"><span class="error"></span></div>
+        <div class="row"><input type="submit" value="登录"></div>
+    </form>
+</div>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script>
+    let hash ={};
+    let $form = $('#signIn')
+    $form.on('submit',(e)=>{
+        e.preventDefault()
+        var need = ['email','password']
+        need.forEach((name) => {
+            let value = $form.find(`[name=${name}]`).val()
+            hash[name] = value;
+        })
+        console.log(hash)
+        $form.find('.error').each((index,span)=>{
+            console.log(span)
+            $(span).text('');
+        })
+        if(hash['email'] === ''){
+            $form.find('[name="email"]').siblings('.error').text('填邮箱啊')
+            return
+        }
+        if(hash['password'] === ''){
+            $form.find('[name="password"]').siblings('.error').text('填密码啊')
+            return
+        }
+        $.post('/sign_in',hash).then(() => {
+            window.location.href='/'
+        },(request) => {
+            alert('邮箱或密码错误')
+        })
+    })
+
+</script>
+</body>
+</html>
