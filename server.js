@@ -8,6 +8,8 @@ if(!port){
   process.exit(1)
 }
 
+let sessions={};
+console.log('zzzzzzzzzzzz')
 var server = http.createServer(function(request, response){
   var parsedUrl = url.parse(request.url, true)
   var path = request.url 
@@ -19,7 +21,7 @@ var server = http.createServer(function(request, response){
 
   /******** 从这里开始看，上面不要看 ************/
 
-  console.log('HTTP 路径为\n' + path)
+  console.log('HTTP 路径为\n' + path) 
   if(path == '/style.css'){
     response.setHeader('Content-Type', 'text/css; charset=utf-8')
     response.write('body{background-color: #ddd;}h1{color: red;}')
@@ -28,10 +30,16 @@ var server = http.createServer(function(request, response){
     response.setHeader('Content-Type', 'text/javascript; charset=utf-8')
     response.write('alert("这是JS执行的")')
     response.end()
-  }else if(path == '/'){
+  }else if(path == '/'){ //首页
     response.setHeader('Content-Type', 'text/html; charset=utf-8')
       let string = fs.readFileSync('./index.html','utf-8')
-      let cookies = request.headers.cookie.split('; ')
+      let cookies = '';
+      console.log(request.headers.cookie)
+      if(request.headers.cookie){
+        cookies = request.headers.cookie.split('; ')
+      }    
+      console.log('cookies')
+      console.log(cookies)
       let hash ={}
       for(let i=0;i<cookies.length;i++){
         let parts = cookies[i].split('=')
@@ -39,7 +47,12 @@ var server = http.createServer(function(request, response){
         let value =parts[1]
         hash[key] = value
       }
-      let email = hash.sign_in_email
+      let mySession = sessions[hash.sessionId]
+      console.log(mySession)
+      let email
+      if(mySession){
+        email = mySession.sign_in_email
+      }
       let users = fs.readFileSync('./db/user.json','utf-8')
       users = JSON.parse(users)
       let foundUser
@@ -58,13 +71,13 @@ var server = http.createServer(function(request, response){
       console.log('hash')
       console.log(hash)
     response.end()
-  }else if(path === '/sign_up' && method === "GET"){
+  }else if(path === '/sign_up' && method === "GET"){ //注册页面
     let string = fs.readFileSync('./sign_up.html')
     response.statusCode = 200;
     response.setHeader('Content-Type', 'text/html; charset=utf-8')
     response.write(string)
     response.end()
-  }else if(path === '/sign_up' && method === "POST"){
+  }else if(path === '/sign_up' && method === "POST"){ //注册
     readBody(request).then((body) => {
       let strings = body.split('&');
       let hash = {};
@@ -124,13 +137,13 @@ var server = http.createServer(function(request, response){
       response.statusCode = 200;
       response.end()
     })
-  } else if(path === "/sign_in" && method === "GET"){
+  } else if(path === "/sign_in" && method === "GET"){ //登录页面
     let string = fs.readFileSync('./sign_in.html','utf-8')
     response.statusCode = 200;
     response.setHeader('Content-Type', 'text/html; charset=utf-8')
     response.write(string)
     response.end()
-  }else if(path === "/sign_in" && method === "POST"){
+  }else if(path === "/sign_in" && method === "POST"){ //登录
     let string = fs.readFileSync('./db/user.json')
     response.statusCode = 200;
     response.setHeader('Content-Type', 'text/html; charset=utf-8')
@@ -172,7 +185,12 @@ var server = http.createServer(function(request, response){
         }
         if(found){
           response.statusCode = 200;
-          response.setHeader("Set-Cookie",`sign_in_email=${email}`)
+          let sessionId = Math.floor(Math.random() * 100000);
+          sessions[sessionId] = {sign_in_email:email};
+          console.log('sessions')
+          console.log(sessions)
+          //response.setHeader("Set-Cookie",`sign_in_email=${email}`)
+          response.setHeader("Set-Cookie",`sessionId=${sessionId}`)
           response.write(`ok`)
           response.end()
         }else{        
